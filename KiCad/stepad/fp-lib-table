@@ -1,0 +1,10 @@
+(fp_lib_table
+  (lib (name "MX_Alps_Hybrid")(type "KiCad")(uri "${KIPRJMOD}/libraries/MX_Alps_Hybrid/MX_Only.pretty")(options "")(descr ""))
+  (lib (name "MX_Hotswap")(type "KiCad")(uri "${KIPRJMOD}/libraries/MX_Hotswap.pretty")(options "")(descr ""))
+  (lib (name "SamacSys_Parts")(type "KiCad")(uri "${KIPRJMOD}/libraries/SamacSys_Parts.pretty")(options "")(descr ""))
+  (lib (name "Type-C")(type "KiCad")(uri "${KIPRJMOD}/libraries/Type-C.pretty")(options "")(descr ""))
+  (lib (name "custom_led_library")(type "KiCad")(uri "${KIPRJMOD}/libraries/custom_led_library")(options "")(descr ""))
+  (lib (name "Power_Protection_ESD")(type "KiCad")(uri "${KIPRJMOD}/libraries/Power_Protection_ESD")(options "")(descr ""))
+  (lib (name "RP2040_minimal")(type "KiCad")(uri "${KIPRJMOD}/libraries/RP2040_minimal.pretty")(options "")(descr ""))
+  (lib (name "random_parts")(type "KiCad")(uri "${KIPRJMOD}/libraries/random_parts.pretty")(options "")(descr ""))
+)
