@@ -33,9 +33,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.762,
-          "height": 1.524,
-          "width": 1.524
+          "drill": 0.0,
+          "height": 1.1,
+          "width": 1.8
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -45,7 +45,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.508
+          "min_clearance": 0.0
         }
       },
       "diff_pair_dimensions": [
@@ -55,12 +55,23 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "clearance|195050000|52885000|d7a69f73-1b51-48e0-bb96-51fd3b362073|a6d3ce9c-22a9-4f0e-899b-9ef3bb80af98",
+        "clearance|200725000|52885000|bf55ec89-c250-48d7-973b-03f509ce49c8|b37d1f66-6a75-492e-9acb-6304bb923581",
+        "silk_over_copper|181150000|71725000|f107c931-c557-4fc6-a231-55b57f134ea6|43dbd2a9-a6aa-4536-a85c-88facb84880b",
+        "silk_over_copper|181150000|75425000|f107c931-c557-4fc6-a231-55b57f134ea6|ab34e1b6-6066-4aa6-b807-4d163cb280ed",
+        "silk_over_copper|181550000|61125000|250faabf-dbbf-4aaa-b6bb-0c8419c948e4|3af3ce4e-f0fe-4076-badb-a98be98fd879",
+        "silk_over_copper|181550000|64825000|250faabf-dbbf-4aaa-b6bb-0c8419c948e4|22de369b-174d-4fe1-8613-b547ca51296d",
+        "silk_over_copper|186350000|71725000|eaa9892e-beb2-4cc5-aa37-52d72984ed64|bd401ec2-7b10-4f3a-85d7-8f38639b889d",
+        "silk_over_copper|186350000|75425000|eaa9892e-beb2-4cc5-aa37-52d72984ed64|357df95f-0ea9-4d49-ac3b-8a1158956f19",
+        "silk_over_copper|186750000|61125000|f9b56568-86fa-4ef9-9cd6-9d418c7cb498|96c9f902-5bcc-45b9-a408-2b72c4be48e5",
+        "silk_over_copper|186750000|64825000|f9b56568-86fa-4ef9-9cd6-9d418c7cb498|7eb18a7c-b8f9-4519-955b-ef57da4fe7dc"
+      ],
       "meta": {
         "version": 2
       },
       "rule_severities": {
-        "annular_width": "error",
+        "annular_width": "ignore",
         "clearance": "error",
         "copper_edge_clearance": "error",
         "courtyards_overlap": "error",
@@ -90,7 +101,7 @@
         "skew_out_of_range": "error",
         "through_hole_pad_without_hole": "error",
         "too_many_vias": "error",
-        "track_dangling": "warning",
+        "track_dangling": "ignore",
         "track_width": "error",
         "tracks_crossing": "error",
         "unconnected_items": "error",
@@ -120,7 +131,10 @@
       },
       "track_widths": [
         0.0,
-        0.127
+        0.127,
+        0.2,
+        0.3,
+        0.781
       ],
       "via_dimensions": [
         {
