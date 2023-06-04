@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>C:\Users\stefa\Documents\Projects\stepad\KiCad\stepad\stepad.kicad_sch</source>
-    <date>6/2/2023 9:49:12 PM</date>
+    <date>6/3/2023 11:15:48 AM</date>
     <tool>Eeschema (6.0.0)</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -246,10 +246,10 @@
       <value>1u</value>
       <footprint>Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder</footprint>
       <fields>
-        <field name="Part Number">CL10A105KA8NNNC</field>
+        <field name="Part Number">CL10B104KA8NNNC</field>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Part Number" value="CL10A105KA8NNNC"/>
+      <property name="Part Number" value="CL10B104KA8NNNC"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -259,10 +259,10 @@
       <value>1u</value>
       <footprint>Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder</footprint>
       <fields>
-        <field name="Part Number">CL10A105KA8NNNC</field>
+        <field name="Part Number">CL10B104KA8NNNC</field>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Part Number" value="CL10A105KA8NNNC"/>
+      <property name="Part Number" value="CL10B104KA8NNNC"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -742,10 +742,10 @@
       <value>AH49-E</value>
       <footprint>random_parts:SOT-23_Handsoldering_no_plane</footprint>
       <fields>
-        <field name="Part Number">AH49-E</field>
+        <field name="Part Number">AH49ENTR-G1</field>
       </fields>
       <libsource lib="custom_library" part="AH49-E" description=""/>
-      <property name="Part Number" value="AH49-E"/>
+      <property name="Part Number" value="AH49ENTR-G1"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -755,10 +755,10 @@
       <value>AH49-E</value>
       <footprint>random_parts:SOT-23_Handsoldering_no_plane</footprint>
       <fields>
-        <field name="Part Number">AH49-E</field>
+        <field name="Part Number">AH49ENTR-G1</field>
       </fields>
       <libsource lib="custom_library" part="AH49-E" description=""/>
-      <property name="Part Number" value="AH49-E"/>
+      <property name="Part Number" value="AH49ENTR-G1"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -768,10 +768,10 @@
       <value>AH49-E</value>
       <footprint>random_parts:SOT-23_Handsoldering_no_plane</footprint>
       <fields>
-        <field name="Part Number">AH49-E</field>
+        <field name="Part Number">AH49ENTR-G1</field>
       </fields>
       <libsource lib="custom_library" part="AH49-E" description=""/>
-      <property name="Part Number" value="AH49-E"/>
+      <property name="Part Number" value="AH49ENTR-G1"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -781,10 +781,10 @@
       <value>AH49-E</value>
       <footprint>random_parts:SOT-23_Handsoldering_no_plane</footprint>
       <fields>
-        <field name="Part Number">AH49-E</field>
+        <field name="Part Number">AH49ENTR-G1</field>
       </fields>
       <libsource lib="custom_library" part="AH49-E" description=""/>
-      <property name="Part Number" value="AH49-E"/>
+      <property name="Part Number" value="AH49ENTR-G1"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -795,10 +795,10 @@
       <footprint>Package_TO_SOT_SMD:SOT-223-3_TabPin2</footprint>
       <datasheet>http://www.onsemi.com/pub_link/Collateral/NCP1117-D.PDF</datasheet>
       <fields>
-        <field name="Part Number">NCP1117-3.3_SOT223</field>
+        <field name="Part Number">AZ1117IH-3.3TRG1</field>
       </fields>
       <libsource lib="Regulator_Linear" part="NCP1117-3.3_SOT223" description="1A Low drop-out regulator, Fixed Output 3.3V, SOT-223"/>
-      <property name="Part Number" value="NCP1117-3.3_SOT223"/>
+      <property name="Part Number" value="AZ1117IH-3.3TRG1"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -822,10 +822,10 @@
       <value>RP2040</value>
       <footprint>RP2040_minimal:RP2040-QFN-56</footprint>
       <fields>
-        <field name="Part Number">RP2040</field>
+        <field name="Part Number">SC0914(13)</field>
       </fields>
       <libsource lib="MCU_RaspberryPi_RP2040" part="RP2040" description=""/>
-      <property name="Part Number" value="RP2040"/>
+      <property name="Part Number" value="SC0914(13)"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -836,10 +836,10 @@
       <footprint>Package_TO_SOT_SMD:SOT-23-6</footprint>
       <datasheet>https://katalog.we-online.de/pbs/datasheet/82400102.pdf</datasheet>
       <fields>
-        <field name="Part Number">WE-TVS-82400102</field>
+        <field name="Part Number">82400102</field>
       </fields>
       <libsource lib="Power_Protection" part="WE-TVS-82400102" description="Low Capacitance TVS Diode Array, 2 Channels, SOT-23-6"/>
-      <property name="Part Number" value="WE-TVS-82400102"/>
+      <property name="Part Number" value="82400102"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="stepad.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
