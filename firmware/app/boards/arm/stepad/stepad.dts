@@ -1,0 +1,150 @@
+/dts-v1/;
+
+#include <freq.h>
+
+#include <rpi_pico/rp2040.dtsi>
+#include "stepad-pinctrl.dtsi"
+#include <zephyr/dt-bindings/pwm/pwm.h>
+
+#include <zephyr/dt-bindings/i2c/i2c.h>
+
+
+/ {
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,flash-controller = &ssi;
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,code-partition = &code_partition;
+	};
+
+	xtal_clk: xtal-clk {
+		compatible = "fixed-clock";
+		clock-frequency = <12000000>;
+		#clock-cells = <0>;
+	};
+
+	aliases {
+		watchdog0 = &wdt0;
+	};
+
+    /* LED STUFF */
+	aliases {
+		led-col0 = &led0;
+        led-col1 = &led1;
+        led-col2 = &led2;
+		pwm-led-red = &pwm_led0;
+		pwm-led-green = &pwm_led1;
+		pwm-led-blue = &pwm_led2;
+	};
+
+    leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+			label = "LED_COL0";
+		};
+        led1: led_1 {
+			gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+			label = "LED_COL1";
+		};
+        led2: led_2 {
+			gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+			label = "LED_COL2";
+		};
+	};
+
+	pwm_leds {
+		compatible = "pwm-leds";
+		status = "okay";
+		pwm_led0: pwm_led_red {
+			pwms = <&pwm 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+		};
+
+		pwm_led1: pwm_led_green {
+			pwms = <&pwm 1 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+		};
+
+		pwm_led2: pwm_led_blue {
+			pwms = <&pwm 2 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+		};
+		
+	};
+
+    /* KSCAN */
+    kscan0: kscan_0 {
+        compatible = "kscan-gpio-matrix";
+        label="KSCAN";
+        diode-direction = "col2row";
+        col-gpio=
+            <&gpio0 8 GPIO_ACTIVE_HIGH>,
+            <&gpio0 9 GPIO_ACTIVE_HIGH>;
+
+        row-gpio=
+            <&gpio0 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+    };
+};
+
+&flash0 {
+	reg = <0x10000000 DT_SIZE_M(2)>;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/* Reserved memory for the second stage bootloader */
+		second_stage_bootloader: partition@0 {
+			label = "second_stage_bootloader";
+			reg = <0x00000000 0x100>;
+			read-only;
+		};
+
+		/*
+		 * Usable flash. Starts at 0x100, after the bootloader. The partition
+		 * size is 2MB minus the 0x100 bytes taken by the bootloader.
+		 */
+		code_partition: partition@100 {
+			label = "code-partition";
+			reg = <0x100 (DT_SIZE_M(2) - 0x100)>;
+			read-only;
+		};
+	};
+};
+
+&uart0 {
+	current-speed = <115200>;
+	status = "okay";
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-names = "default";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&wdt0 {
+	status = "okay";
+};
+
+&adc {
+	status = "okay";
+	pinctrl-0 = <&adc_default>;
+	pinctrl-names = "default";
+};
+
+zephyr_udc0: &usbd {
+	status = "okay";
+};
+
+&pwm {
+	status = "okay";
+	pinctrl-0 = <&pwm_ch0a0b1b_default>;
+	pinctrl-names = "default";
+};
+
+&vreg {
+	regulator-always-on;
+	regulator-allowed-modes = <REGULATOR_RPI_PICO_MODE_NORMAL>;
+};
