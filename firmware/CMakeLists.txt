@@ -44,6 +44,8 @@ set(SRC_DIR src)
 
 add_executable(stepad_firmware
   ${SRC_DIR}/main.c
+  ${SRC_DIR}/lekker_switch.c
+  ${SRC_DIR}/led_matrix.c
 )
 
 # Enable stdio prints over UART
@@ -52,4 +54,10 @@ pico_enable_stdio_uart(stepad_firmware 1)
 # Enable outputs of bin, hex and map files 
 pico_add_extra_outputs(stepad_firmware)
 
-target_link_libraries(stepad_firmware pico_stdlib)
+target_link_libraries(stepad_firmware 
+  pico_stdlib
+  pico_multicore
+  hardware_adc 
+  hardware_dma
+  hardware_pwm
+)

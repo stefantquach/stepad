@@ -1,0 +1,13 @@
+14mm x 14mm hole
+19.05
+
+24.3
+
+10mm from bottom plate to top of bottom case
+
+
+PCB dimensions
+35.05mm x 111.25mm
+
+usb center to right edge: 55.675mm
+usb center to left edge:  55.575mm

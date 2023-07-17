@@ -18,4 +18,10 @@ K
 F https://componentsearchengine.com/Datasheets/2/NCP161ASN330T1G.pdf
 $ENDCMP
 #
+$CMP ADS7953SBDBTR
+D 12-Bit, 1-MSPS, 16-Channel, Single-Ended, microPower SAR ADC with Serial I/F
+K
+F http://www.ti.com/lit/ds/symlink/ads7950.pdf
+$ENDCMP
+#
 #End Doc Library

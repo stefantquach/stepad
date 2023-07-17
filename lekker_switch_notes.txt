@@ -1,0 +1,12 @@
+using AH49E hall sensor with VCC=3.3V
+
+Sensor max voltage 2.3V @ 1000 G
+Sensor min voltage 1.0V @ -1000 G
+
+1.28V (bottom) to 1.56V (rest)
+1.28V --> -569.231 Gauss
+1.56V --> -138.462 Gauss
+
+1.63 (rest) 1.31 (bottom)
+1.31V --> -523.077 Gauss
+1.63V --> -30.769 Gauss

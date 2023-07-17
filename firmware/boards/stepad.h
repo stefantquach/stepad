@@ -17,6 +17,16 @@
 // For board detection
 #define STEPAD
 
+// On some samples, the xosc can take longer to stabilize than is usual
+#ifndef PICO_XOSC_STARTUP_DELAY_MULTIPLIER
+#define PICO_XOSC_STARTUP_DELAY_MULTIPLIER 64
+#endif
+
+// --- KEYSWITCHES ---
+#define STEPAD_K_ROW  7
+#define STEPAD_K_COL0 8
+#define STEPAD_K_COL1 9
+
 // --- UART ---
 #ifndef PICO_DEFAULT_UART
 #define PICO_DEFAULT_UART 0
@@ -29,10 +39,15 @@
 #endif
 
 // --- LED ---
-#ifndef PICO_DEFAULT_LED_PIN
-#define PICO_DEFAULT_LED_PIN 25
-#endif
+// no PICO_DEFAULT_LED_PIN bc of matrix
 // no PICO_DEFAULT_WS2812_PIN
+#define STEPAD_LED_ROW_R 0
+#define STEPAD_LED_ROW_G 1
+#define STEPAD_LED_ROW_B 2
+#define STEPAD_LED_COL1  3
+#define STEPAD_LED_COL2  4
+#define STEPAD_LED_COL3  5
+#define STEPAD_LED_COL4  6
 
 // --- I2C ---
 #ifndef PICO_DEFAULT_I2C
