@@ -1,6 +1,7 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "led_matrix.h"
+#include "utility_colors.h"
 
 // Hold time for each iterations of the LED process loop 
 #define LED_COL_HOLD_TIME_TICKS 3
@@ -12,13 +13,6 @@ typedef struct pwm_slice_chan
     uint channel;
 } pwm_ref_t;
 
-typedef struct rgb
-{
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-} rgb_t;
-
 // Pin definitions
 enum
 {
@@ -26,6 +20,7 @@ enum
     LED_GREEN,
     LED_BLUE
 } led_row_table_index;
+
 // Row table                        R                 G                 B
 const int row_pins[NUM_ROWS][3] = {{STEPAD_LED_ROW_R, STEPAD_LED_ROW_G, STEPAD_LED_ROW_B}};
 const pwm_ref_t row_pwm_slice[NUM_ROWS][3] = {{{0, PWM_CHAN_A}, {0, PWM_CHAN_B}, {1, PWM_CHAN_A}}};
@@ -89,7 +84,7 @@ void initialize_led_pwms()
 }
 
 /**
- * 
+ * Enables all the PWM modules (that are being used for the matrix).
 */
 void start_led_process()
 {
@@ -108,7 +103,9 @@ void start_led_process()
     pwm_set_mask_enabled(pwm_mask);
 }
 
-
+/**
+ * IRQ process to deal with the RGB LED matrix
+*/
 void pwm_wrap_irq()
 {    
     int i=0;
@@ -153,7 +150,7 @@ void pwm_wrap_irq()
 
 
 /**
- * 
+ * Set a given LED RGB value
 */
 void set_led(int row, int col, uint8_t r, uint8_t g, uint8_t b)
 {

@@ -46,6 +46,9 @@ add_executable(stepad_firmware
   ${SRC_DIR}/main.c
   ${SRC_DIR}/lekker_switch.c
   ${SRC_DIR}/led_matrix.c
+  ${SRC_DIR}/led_effects.c
+  ${SRC_DIR}/settings.c
+  ${SRC_DIR}/console.c
 )
 
 # Enable stdio prints over UART
@@ -60,4 +63,8 @@ target_link_libraries(stepad_firmware
   hardware_adc 
   hardware_dma
   hardware_pwm
+  hardware_interp
+  hardware_flash
+  # tinyusb_device
+  # tinyusb_board
 )

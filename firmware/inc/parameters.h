@@ -1,0 +1,11 @@
+#ifndef PARAMETERS_H_
+#define PARAMETERS_H_
+
+#define USB_POLLING_RATE_HZ 1000
+#define DEBOUNCE_SAMPLES 3
+
+#define NUM_LEKKER_SWITCH 4
+#define NUM_DIGITAL_SWITCH 2
+#define TOTAL_NUM_SWITCH 2
+
+#endif
