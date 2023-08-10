@@ -44,11 +44,17 @@ set(SRC_DIR src)
 
 add_executable(stepad_firmware
   ${SRC_DIR}/main.c
+  ${SRC_DIR}/switch.c
   ${SRC_DIR}/lekker_switch.c
+  ${SRC_DIR}/digital_switch.c
   ${SRC_DIR}/led_matrix.c
   ${SRC_DIR}/led_effects.c
   ${SRC_DIR}/settings.c
   ${SRC_DIR}/console.c
+  ${SRC_DIR}/usb_descriptors.c
+  ${SRC_DIR}/usb_hid.c
+  ${SRC_DIR}/keymap.c
+
 )
 
 # Enable stdio prints over UART
@@ -60,11 +66,12 @@ pico_add_extra_outputs(stepad_firmware)
 target_link_libraries(stepad_firmware 
   pico_stdlib
   pico_multicore
+  pico_unique_id
   hardware_adc 
   hardware_dma
   hardware_pwm
   hardware_interp
   hardware_flash
-  # tinyusb_device
-  # tinyusb_board
+  tinyusb_device
+  tinyusb_board
 )

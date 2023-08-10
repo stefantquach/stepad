@@ -10,10 +10,16 @@
 #include "hardware/adc.h"
 #include "hardware/dma.h"
 #include "lekker_switch.h"
+#include "digital_switch.h"
 #include "led_matrix.h"
 #include "led_effects.h"
 #include "console.h"
+#include "settings.h"
 #include "parameters.h"
+#include "keymap.h"
+
+#include "bsp/board.h"
+#include "tusb.h"
 
 /**
  * Helper function to check if bootloader needs to be entered.
@@ -46,12 +52,6 @@ void core1_main() {
     // initialize LED matrix
     initialize_led_pwms();
 
-    // TODO test lines
-    set_led(0,0, 100, 0, 0);
-    set_led(0,1, 0, 100, 0);
-    set_led(0,2, 0, 0, 100);
-    set_led(0,3, 100, 0, 100);
-
     start_led_process();
 
     absolute_time_t start_time = get_absolute_time();
@@ -80,22 +80,51 @@ int main() {
     // This check is only performed on start up.
     check_for_boot();
 
+    // Initialize TinyUSB
+    board_init();
+    tusb_init();
+
     // Initialize CPU2
     multicore_launch_core1(core1_main);
 
     // Initialize processes
+    initialize_keymap();
     init_switch_adc();
+    init_digital_switches();
+    initialize_settings();
     console_initialize();
 
-    // Start ADCS
+    // Start ADCs
     start_switch_adc();
 
     printf("Starting CPU0 loop\n");
     while(1)
     {
         console_process();
+
+        tud_task();
     }
 
 }
 
 
+void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
+{
+
+}
+
+void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint16_t len)
+{
+}
+
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen)
+{
+  // TODO not Implemented
+  (void) instance;
+  (void) report_id;
+  (void) report_type;
+  (void) buffer;
+  (void) reqlen;
+
+  return 0;
+}

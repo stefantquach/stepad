@@ -4,14 +4,20 @@
 #include "hardware/interp.h"
 #include "hardware/dma.h"
 #include "lekker_switch.h"
+#include "settings.h"
+#include "console.h"
+#include "switch.h"
+#include "digital_switch.h"
+#include "usb_hid.h"
 
-#define ADC_SAMPLING_FREQUENCY_HZ 1000
+
+#define ADC_SAMPLING_FREQUENCY_HZ USB_POLLING_RATE_HZ
 #define ADC_CLK_FREQ_HZ           48000000
 
-#define ADC_TOTAL_SAMPLE_FREQ_HZ (ADC_SAMPLING_FREQUENCY_HZ*NUM_LEKKER_SWITCH)
+#define ADC_SAMPLE_CLK_FREQ_HZ (ADC_SAMPLING_FREQUENCY_HZ*NUM_LEKKER_SWITCH)
+#define ADC_TOTAL_SAMPLE_FREQ_HZ (ADC_SAMPLING_FREQUENCY_HZ)
 
 // Variables
-bool switch_pressed[NUM_LEKKER_SWITCH];
 uint8_t switch_travel[NUM_LEKKER_SWITCH];
 uint16_t sample_buf[NUM_LEKKER_SWITCH];
 uint32_t sample_mean[NUM_LEKKER_SWITCH];
@@ -19,6 +25,8 @@ uint32_t sample_mean[NUM_LEKKER_SWITCH];
 // static
 static uint16_t count;
 static uint32_t sample_sum[NUM_LEKKER_SWITCH];
+// pointer to the global address of bool array for switch status. Digital switches first, then Lekker switches
+static bool *lekker_pressed = &switch_pressed[NUM_DIGITAL_SWITCH]; 
 
 
 void adc_irq_handler();
@@ -51,7 +59,7 @@ int init_switch_adc()
 
     // Set up for the given sample rate
     // This is all timed by the 48 MHz ADC clock.
-    adc_set_clkdiv(ADC_CLK_FREQ_HZ/(ADC_TOTAL_SAMPLE_FREQ_HZ));
+    adc_set_clkdiv(ADC_CLK_FREQ_HZ/(ADC_SAMPLE_CLK_FREQ_HZ));
 
     adc_irq_set_enabled(true);
 
@@ -101,19 +109,24 @@ uint8_t calculate_travel(uint16_t adc_count, uint16_t rest_count, uint16_t press
      
 }
 
+
+/**
+ * ADC IRQ handler. This is run a the USB polling rate and is used as the main interrupt
+*/
 void adc_irq_handler()
 {
-    // const uint16_t threshold = 1500; // TODO change this to settings.c
     int i;
     uint16_t sample;
     int write_mean = false;
 
     // Increment count everytime a new sample is generated
-    if(++count >= ADC_SAMPLING_FREQUENCY_HZ)
+    if(++count >= ADC_TOTAL_SAMPLE_FREQ_HZ)
     {
         count = 0;
         write_mean = true;
     }
+
+    data_log_entry_t data_log;
 
     // copy ADC data into sample buffer
     for(i=0; i<NUM_LEKKER_SWITCH; ++i)
@@ -121,18 +134,48 @@ void adc_irq_handler()
         sample = adc_hw->fifo;
         sample_buf[i] = sample & 0xFFF;
         // convert the ADC counts to travel distance
-        switch_travel[i] = calculate_travel(sample & 0xFFF, 2054, 1514);
+        switch_travel[i] = calculate_travel(sample & 0xFFF, settings.cal[i].top_count, settings.cal[i].bottom_count);
 
-        // TODO debounce
-        // switch_pressed[i] = true;
+        // Compute if switch should be considered "pressed"
+        if(settings.switch_config[i].rapid_trigger)
+        {
+            // If rapid trigger is on
+        }
+        else
+        {
+            // Standard mode (threshold with some hysteresis)
+            if(lekker_pressed[i])
+            {
+                // If the switch is currently active, then need to press higher on counts (ie lower count) in order to release
+                lekker_pressed[i] = switch_travel[i] > (settings.switch_config[i].threshold - SWITCH_HYSTERESIS_COUNTS);
+            }
+            else
+            {
+                // If the switch is currently not active, then need to press deeper on counts (ie higher count) in order to press
+                lekker_pressed[i] = switch_travel[i] > (settings.switch_config[i].threshold + SWITCH_HYSTERESIS_COUNTS);
+            }
+        }
+
+        // Log data
+        data_log.switch_travel[i] = switch_travel[i];
+        data_log.switch_pressed[i] = lekker_pressed[i];
 
         // Calculating stats
         sample_sum[i] += (uint32_t)sample;
         if(write_mean)
         {
             // calculate and store the mean
-            sample_mean[i] = sample_sum[i]/ADC_SAMPLING_FREQUENCY_HZ;
+            sample_mean[i] = sample_sum[i]/ADC_TOTAL_SAMPLE_FREQ_HZ;
             sample_sum[i] = 0;
         }
     }
+
+    // check digital switches
+    check_digital_switch_status();
+
+    // send USB report
+    send_keyboard_report();
+
+    // write the data in
+    write_data_log(&data_log);
 }

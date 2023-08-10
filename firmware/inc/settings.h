@@ -22,6 +22,9 @@ typedef struct lekker_config
 
 typedef struct settings
 {
+    // N-key Rollover enable
+    bool nkey_rollover;
+
     // Calibration
     lekker_calibration_t cal[NUM_LEKKER_SWITCH];
 
@@ -34,7 +37,7 @@ typedef struct settings
     uint32_t crc32;
 } switch_settings_t;
 
-void initialize(void);
+void initialize_settings(void);
 void process_settings(void);
 
 // void update_settings(uint16_t switch_id);

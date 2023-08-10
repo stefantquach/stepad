@@ -16,3 +16,8 @@
 - CPU1 ADC samples ADCS at n times the USB polling rate where n is the number of samples for debouncing
 
 - CPU2 handles LED stuff
+
+Switch 0: Top: 2036     Bottom:1513
+Switch 1: Top: 2091     Bottom:1464
+Switch 2: Top: 2012     Bottom:1311
+Switch 3: Top: 2052     Bottom:1478
