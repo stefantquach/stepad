@@ -47,6 +47,15 @@ void send_keyboard_report()
         }
     }
 
+    // TODO wake up
+    // // Remote wakeups
+    // if ( tud_suspended() && btn )
+    // {
+    //     // Wake up host if we are in suspend mode
+    //     // and REMOTE_WAKEUP feature is enabled by host
+    //     tud_remote_wakeup();
+    // }
+
     // TODO figure out a way to prevent sending multiple zero keyboard reports
     tud_hid_keyboard_report(REPORT_ID_KEYBOARD, modifier, keycodes);
 }

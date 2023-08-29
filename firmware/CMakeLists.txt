@@ -54,7 +54,7 @@ add_executable(stepad_firmware
   ${SRC_DIR}/usb_descriptors.c
   ${SRC_DIR}/usb_hid.c
   ${SRC_DIR}/keymap.c
-
+  ${SRC_DIR}/interface_hid.c
 )
 
 # Enable stdio prints over UART

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "lekker_switch.h"
 #include "parameters.h"
+#include "keymap.h"
 
 //--------------------------------------------------
 // Typedefs for structs to put into flash
@@ -31,7 +32,8 @@ typedef struct settings
     // Configurations
     lekker_config_t switch_config[NUM_LEKKER_SWITCH];
 
-    // TODO keymap
+    // Keymap
+    uint16_t keymap[MAX_KEY_LAYERS][TOTAL_NUM_SWITCH];
 
     // CRC at the end to verify integrity
     uint32_t crc32;

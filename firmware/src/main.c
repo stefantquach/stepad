@@ -88,7 +88,6 @@ int main() {
     multicore_launch_core1(core1_main);
 
     // Initialize processes
-    initialize_keymap();
     init_switch_adc();
     init_digital_switches();
     initialize_settings();
@@ -105,26 +104,4 @@ int main() {
         tud_task();
     }
 
-}
-
-
-void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
-{
-
-}
-
-void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint16_t len)
-{
-}
-
-uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen)
-{
-  // TODO not Implemented
-  (void) instance;
-  (void) report_id;
-  (void) report_type;
-  (void) buffer;
-  (void) reqlen;
-
-  return 0;
 }

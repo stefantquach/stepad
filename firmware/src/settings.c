@@ -21,6 +21,8 @@ static bool read_settings_from_flash();
 void initialize_settings(void)
 {
     int i;
+    // Initialize the keymap interface (this also loads default keymap)
+    initialize_keymap();
     // Read in the current values from flash
     if(!read_settings_from_flash())
     {

@@ -25,13 +25,20 @@
 #ifndef USB_DESCRIPTORS_H_
 #define USB_DESCRIPTORS_H_
 
-enum
+enum report_ids_enum
 {
   REPORT_ID_KEYBOARD = 1,
   REPORT_ID_MOUSE,
   REPORT_ID_CONSUMER_CONTROL,
   REPORT_ID_GAMEPAD,
   REPORT_ID_COUNT
+};
+
+enum interface_ids_enum
+{
+  ITF_NUM_HID,
+  ITF_NUM_HID_LR, // low rate inout
+  ITF_NUM_TOTAL
 };
 
 #endif /* USB_DESCRIPTORS_H_ */
