@@ -62,7 +62,7 @@ void send_ack_nack(int8_t error_code, uint8_t* data_buf, uint16_t bufsize);
 void parse_message(const uint8_t* buf, uint16_t bufsize)
 {
     message_struct_t* message_header = (message_struct_t*)buf;
-    const uint8_t* message_body = &buf[sizeof(message_header)];
+    const uint8_t* message_body = &buf[sizeof(message_struct_t)];
     if(message_header->message_size >= MSG_MAX_SIZE)
     {
         // return a NACK
@@ -70,7 +70,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
         return;
     }
 
-    uint8_t reply_buf[MSG_MAX_SIZE];
+    uint8_t reply_buf[MSG_MAX_SIZE] = {0};
     switch(message_header->message_id)
     {
         case MSG_ACK_NACK:
@@ -96,7 +96,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             uint8_t switch_id  = message_body[0];
             uint8_t new_threshold = message_body[1];
             bool new_trigger = message_body[2];
-            if(switch_id >= TOTAL_NUM_SWITCH)
+            if(switch_id >= NUM_LEKKER_SWITCH)
             {
                 // send a NACK
                 send_ack_nack(MSG_NACK_INVALID_SWITCH_ID, NULL, 0);
@@ -104,8 +104,8 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             else
             {
                 // set settings
-                settings.switch_config->threshold = new_threshold;
-                settings.switch_config->rapid_trigger = new_trigger;
+                settings.switch_config[switch_id].threshold = new_threshold;
+                settings.switch_config[switch_id].rapid_trigger = new_trigger;
                 // Send and ACK in return
                 send_ack_nack(MSG_ACK_SUCCESS, NULL, 0);
             }
@@ -116,7 +116,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
         {
             // incoming message body is just the lekker switch ID
             uint8_t switch_id = message_body[0];
-            if(switch_id >= TOTAL_NUM_SWITCH)
+            if(switch_id >= NUM_LEKKER_SWITCH)
             {
                 // send a NACK
                 send_ack_nack(MSG_NACK_INVALID_SWITCH_ID, NULL, 0);
@@ -136,7 +136,8 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
         case SET_KEYMAP:
         {
             // 0: Switch ID of ANY switch
-            // 1 to MAX LAYERS+1: keymap for the given for all layers 
+            // 1: padding (zero)
+            // 2 to 2*MAX LAYERS + 2: keymap for the given key for all layers 
             uint8_t switch_id = message_body[0];
             if(switch_id >= TOTAL_NUM_SWITCH)
             {
@@ -145,10 +146,13 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             }
             else
             {
+                uint16_t* u16_message_buf = (uint16_t*)&message_body[2];
                 for(int i=0; i < MAX_KEY_LAYERS; ++i)
                 {
-                    settings.keymap[i][switch_id] = message_body[1+i];
+                    settings.keymap[i][switch_id] = u16_message_buf[i];
                 }
+                // Send and ACK in return
+                send_ack_nack(MSG_ACK_SUCCESS, NULL, 0);
             }
             break;
         }
@@ -165,11 +169,13 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             else
             {
                 reply_buf[0] = switch_id;
+                uint16_t* u16_reply_buf = (uint16_t*)&reply_buf[2];
                 // construct response message
                 for(int i=0; i<MAX_KEY_LAYERS; ++i)
                 {
-                    reply_buf[1+i] = settings.keymap[i][switch_id];
+                    u16_reply_buf[i] = settings.keymap[i][switch_id];
                 }
+                send_ack_nack(MSG_ACK_SUCCESS, reply_buf, 2 + MAX_KEY_LAYERS*2);
             }
             break;
         }
@@ -197,7 +203,7 @@ void send_ack_nack(int8_t error_code, uint8_t* data_buf, uint16_t bufsize)
     msg_buf[2] = error_code;
 
     // copy data into buffer if there is data to copy
-    if(!data_buf && bufsize > 0)
+    if(data_buf && bufsize > 0)
     {
         memcpy(&msg_buf[3], data_buf, bufsize);
     }
@@ -245,6 +251,11 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
     if(itf == ITF_NUM_HID_LR)
     {
         // printf("Received set_report on itf 1\n");
+        // for(int i=0; i<bufsize; ++i)
+        // {
+        //     printf("%x ", buffer[i]);
+        // }
+        // printf("\n");
         // tud_hid_n_report(ITF_NUM_HID_LR, 0, buffer, bufsize);
         parse_message(buffer, bufsize);
     }

@@ -13,10 +13,23 @@ for vid in  USB_VID:
         dev = hid.device(dict['vendor_id'], dict['product_id'])
         dev.open(dict['vendor_id'], dict['product_id'])
         if dev:
-            msg = bytes([0x00, 0x01])
+            # msg = bytes([0x00, 0x01]) # Get version
+            # msg = bytes([0x00, 0x03, 0x03, 0x1]) # get switch settings
+            # msg = bytes([0x00, 0x02, 0x06, 0x1, 0x1F, 0]) # set switch settings
+            msg = bytes([0x00, 0x05, 0x03, 0x3]) # get switch keymap
+            # msg = bytes([0x00, 0x04, 0x07, 0x3, 0x00, 0x00, 0x22, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01]) # set switch keymap
+            
             dev.write(msg)
             print("writing")
             str_in = dev.read(64)
             print("Received from HID Device:", str_in, '\n')
+            # print("report_id: %x" % (str_in[0]))
+            print("message_id: %d" % (str_in[0]))
+            print("message_size: %d" % (str_in[1]))
+            print("ACKNACK: %d" % (str_in[2]))
+            print("message_body: ",  str_in[3:])
+            
             exit()
+
+            
                 
