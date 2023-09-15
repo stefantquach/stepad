@@ -28,6 +28,7 @@ static uint32_t sample_sum[NUM_LEKKER_SWITCH];
 // pointer to the global address of bool array for switch status. Digital switches first, then Lekker switches
 static bool *lekker_pressed = &switch_pressed[NUM_DIGITAL_SWITCH]; 
 
+const uint8_t MINIMUM_THRESHOLD = (uint8_t) (0.1 *255.0/4.0);
 
 void adc_irq_handler();
 
@@ -111,6 +112,81 @@ uint8_t calculate_travel(uint16_t adc_count, uint16_t rest_count, uint16_t press
 
 
 /**
+ * Standard low latency trigger mode for analog switch. Implements a
+ * Schmitt-trigger like hysteresis.
+*/
+void process_standard_trigger(uint8_t travel, int switch_id)
+{
+    // Standard mode (threshold with some hysteresis)
+    if(lekker_pressed[switch_id])
+    {
+        // If the switch is currently active, then need to press higher on counts (ie lower count) in order to release
+        lekker_pressed[switch_id] = switch_travel[switch_id] > (settings.switch_config[switch_id].threshold - SWITCH_HYSTERESIS_COUNTS);
+    }
+    else
+    {
+        // If the switch is currently not active, then need to press deeper on counts (ie higher count) in order to press
+        lekker_pressed[switch_id] = switch_travel[switch_id] > (settings.switch_config[switch_id].threshold + SWITCH_HYSTERESIS_COUNTS);
+    }
+}
+
+
+/**
+ * Rapid-trigger process function. The switch will press and unpress based on the derivative
+ * after the initial threshold is passed
+*/
+void process_rapid_trigger(uint8_t travel, int switch_id)
+{
+    static bool rapid_trigger_active[NUM_LEKKER_SWITCH] = {0};
+    static uint8_t curr_max_min[NUM_LEKKER_SWITCH] = {0};
+
+    const uint8_t deactivate_thresh = settings.switch_config[switch_id].rapid_trigger_mode == RAPID_TRIGGER_MODE_CONTINUOUS ? 
+                                        MINIMUM_THRESHOLD : 
+                                        (settings.switch_config[switch_id].threshold - SWITCH_HYSTERESIS_COUNTS);
+
+    if (travel > (settings.switch_config[switch_id].threshold + SWITCH_HYSTERESIS_COUNTS) && !rapid_trigger_active[switch_id])
+    {
+        // Activate rapid trigger if its not already active and we are below the activation threshold
+        lekker_pressed[switch_id] = true;
+        rapid_trigger_active[switch_id] = true;
+        curr_max_min[switch_id] = travel;
+    }
+
+    if (travel < deactivate_thresh && rapid_trigger_active[switch_id])
+    {
+        // Deactivate rapid trigger
+        lekker_pressed[switch_id] = false;
+        rapid_trigger_active[switch_id] = false;
+    }
+
+    // Processing rapid trigger
+    if (rapid_trigger_active[switch_id])
+    {
+        if (lekker_pressed[switch_id])
+        {
+            // Switch is pressed, wait for counts to decrease for unpress. curr_max_min is a MAX
+            curr_max_min[switch_id] = travel > curr_max_min[switch_id] ? travel : curr_max_min[switch_id];
+            if ((curr_max_min[switch_id] - travel) > 2*SWITCH_HYSTERESIS_COUNTS)
+            {
+                lekker_pressed[switch_id] = false;
+                curr_max_min[switch_id] = travel; // curr_max_min becomes a MIN
+            }
+        }
+        else
+        {
+            // Switch is released, wait for counts to increase for unpress. curr_max_min is a MIN
+            curr_max_min[switch_id] = travel < curr_max_min[switch_id] ? travel : curr_max_min[switch_id];
+            if ((travel - curr_max_min[switch_id]) > 2*SWITCH_HYSTERESIS_COUNTS)
+            {
+                lekker_pressed[switch_id] = false;
+                curr_max_min[switch_id] = travel; // curr_max_min becomes a MAX
+            }
+        }
+    }
+}
+
+
+/**
  * ADC IRQ handler. This is run a the USB polling rate and is used as the main interrupt
 */
 void adc_irq_handler()
@@ -137,23 +213,14 @@ void adc_irq_handler()
         switch_travel[i] = calculate_travel(sample & 0xFFF, settings.cal[i].top_count, settings.cal[i].bottom_count);
 
         // Compute if switch should be considered "pressed"
-        if(settings.switch_config[i].rapid_trigger)
+        if(settings.switch_config[i].rapid_trigger_mode)
         {
             // If rapid trigger is on
+            process_rapid_trigger(switch_travel[i], i);
         }
         else
         {
-            // Standard mode (threshold with some hysteresis)
-            if(lekker_pressed[i])
-            {
-                // If the switch is currently active, then need to press higher on counts (ie lower count) in order to release
-                lekker_pressed[i] = switch_travel[i] > (settings.switch_config[i].threshold - SWITCH_HYSTERESIS_COUNTS);
-            }
-            else
-            {
-                // If the switch is currently not active, then need to press deeper on counts (ie higher count) in order to press
-                lekker_pressed[i] = switch_travel[i] > (settings.switch_config[i].threshold + SWITCH_HYSTERESIS_COUNTS);
-            }
+            process_standard_trigger(switch_travel[i], i);
         }
 
         // Log data

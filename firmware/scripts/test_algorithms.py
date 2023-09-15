@@ -153,41 +153,88 @@ def rapid_trigger(data, threshold):
 
     # return lpf_d_travel > 0, lpf_d_travel, d_travel
 
+def rapid_trigger2(data, threshold, continuous=False):
+    pressed = []
+    active_rt = []
+    curr_mm = []
 
+    a = False
+    curr_max_min = 0
+    rapid_trigger_active = False
+
+    deactivate_thresh = int(0.1*255/4) if continuous else (threshold - SWITCH_HYSTERESIS_COUNTS)
+
+    for val in data:
+        if val > threshold + SWITCH_HYSTERESIS_COUNTS and rapid_trigger_active == False:
+            # First time passing the threshold set the switch to pressed
+            curr_max_min = val
+            a = True
+            rapid_trigger_active = True
+
+        if val < deactivate_thresh and rapid_trigger_active == True:
+            a = False
+            rapid_trigger_active = False
+
+        # Only do rapid trigger when below threshold
+        if rapid_trigger_active:
+            # behavior depends on if the switch is pressed
+            if a:
+                # Switch is pressed, wait for counts to decrease for unpress. curr_max_min is a MAX
+                curr_max_min = val if val > curr_max_min else curr_max_min
+                if curr_max_min - val > int(0.1*255/4):
+                    a = False
+                    curr_max_min = val # curr_max_min becomes a MIN
+            else:
+                # Switch is released, wait for counts to increase for unpress. curr_max_min is a MIN
+                curr_max_min = val if val < curr_max_min else curr_max_min
+                if val - curr_max_min > int(0.1*255/4):
+                    a = True
+                    curr_max_min = val
+
+        pressed.append(a)
+        active_rt.append(rapid_trigger_active)
+        curr_mm.append(curr_max_min)
+
+    return pressed, active_rt, curr_mm
    
     
 
 threshold = 100
 
 # pressed = np.array(normal_mode(travel, threshold))
-pressed, extras = rapid_trigger(travel, threshold)
-lpf_diff, diff, diff2 = extras
+# pressed, extras = rapid_trigger(travel, threshold)
+pressed, rt_active, mm = rapid_trigger2(travel, threshold, continuous=False)
+# lpf_diff, diff, diff2 = extras
 pressed = np.array(pressed)
+rt_active = np.array(rt_active)
+mm = np.array(mm)
 # print(diff)
 
 factor = -1
 
-ax = plt.subplot(3,1,1)
+ax = plt.subplot(1,1,1)
 ax.plot(t, factor*travel, 'x-')
+# ax.plot(t, factor*mm)
 ax.fill_between(t, 0, 1, where=pressed, alpha=0.4, transform=ax.get_xaxis_transform(), color='red')
+ax.fill_between(t, 0, 1, where=rt_active, alpha=0.4, transform=ax.get_xaxis_transform(), color='green')
 ax.hlines(factor*threshold, t[0], t[-1], color='black')
 ax.hlines(factor*(threshold-SWITCH_HYSTERESIS_COUNTS), t[0], t[-1], color='orange', alpha=0.5)
 ax.hlines(factor*(threshold+SWITCH_HYSTERESIS_COUNTS), t[0], t[-1], color='orange', alpha=0.5)
 plt.grid(True, which='both')
 
-ax2 = plt.subplot(3,1,2, sharex=ax)
-plt.plot(t, lpf_diff, '-', label="lpf_diff")
-plt.plot(t, diff, '-', alpha=0.4, label="diff")
-ax2.hlines(0, t[0], t[-1], color='black')
-ax2.fill_between(t, 0, 1, where=pressed, alpha=0.4, transform=ax2.get_xaxis_transform(), color='red')
-plt.legend()
-plt.grid(True, which='both')
+# ax2 = plt.subplot(3,1,2, sharex=ax)
+# plt.plot(t, lpf_diff, '-', label="lpf_diff")
+# plt.plot(t, diff, '-', alpha=0.4, label="diff")
+# ax2.hlines(0, t[0], t[-1], color='black')
+# ax2.fill_between(t, 0, 1, where=pressed, alpha=0.4, transform=ax2.get_xaxis_transform(), color='red')
+# plt.legend()
+# plt.grid(True, which='both')
 
-ax3 = plt.subplot(3,1,3, sharex=ax)
-plt.plot(t, diff2, '-', label="accel")
-ax3.hlines(0, t[0], t[-1], color='black')
-ax3.fill_between(t, 0, 1, where=pressed, alpha=0.4, transform=ax3.get_xaxis_transform(), color='red')
-plt.grid(True, which='both')
-plt.legend()
+# ax3 = plt.subplot(3,1,3, sharex=ax)
+# plt.plot(t, diff2, '-', label="accel")
+# ax3.hlines(0, t[0], t[-1], color='black')
+# ax3.fill_between(t, 0, 1, where=pressed, alpha=0.4, transform=ax3.get_xaxis_transform(), color='red')
+# plt.grid(True, which='both')
+# plt.legend()
 
 plt.show()

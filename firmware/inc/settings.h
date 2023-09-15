@@ -15,10 +15,17 @@ typedef struct lekker_calibration
     uint16_t bottom_count;
 } lekker_calibration_t;
 
+enum rapid_trigger_enum
+{
+    RAPID_TRIGGER_OFF = 0,
+    RAPID_TRIGGER_MODE_NORMAL,
+    RAPID_TRIGGER_MODE_CONTINUOUS,
+};
+
 typedef struct lekker_config
 {
     uint16_t threshold;
-    bool rapid_trigger;
+    int rapid_trigger_mode;
 } lekker_config_t;
 
 typedef struct settings
