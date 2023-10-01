@@ -97,7 +97,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             // 2: new rapid trigger setting
             uint8_t switch_id  = message_body[0];
             uint8_t new_threshold = message_body[1];
-            bool new_trigger = message_body[2];
+            uint8_t new_trigger = message_body[2];
             uint8_t trigger_sens = message_body[3];
             if(switch_id >= NUM_LEKKER_SWITCH)
             {

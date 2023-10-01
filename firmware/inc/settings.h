@@ -27,8 +27,8 @@ enum rapid_trigger_enum
 typedef struct lekker_config
 {
     uint8_t threshold; // this is in the 8-bit travel units
-    uint8_t rapid_trigger_sensitivity : 7;
-    uint8_t rapid_trigger_mode : 1;
+    uint8_t rapid_trigger_sensitivity : 6;
+    uint8_t rapid_trigger_mode : 2;
 } lekker_config_t;
 
 typedef struct settings
