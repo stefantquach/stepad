@@ -96,6 +96,7 @@ void load_default_settings(void)
     for(i=0; i<NUM_LEKKER_SWITCH; ++i)
     {
         settings.switch_config[i].threshold = 127; // Default to the middle
+        settings.switch_config[i].rapid_trigger_sensitivity = 20; // Default rapid trigger sensitivity is ~0.3mm
         settings.switch_config[i].rapid_trigger_mode = RAPID_TRIGGER_OFF;
     }
     process_settings();

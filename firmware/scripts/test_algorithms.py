@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import signal
 
-SWITCH_HYSTERESIS_COUNTS = 3
+SWITCH_HYSTERESIS_COUNTS = 5
+print("Total Switch Hysteresis: %.5f mm" % (SWITCH_HYSTERESIS_COUNTS*2 * 4/255))
 
 df = pd.read_csv("scripts/data/data_log.csv")
 
@@ -181,13 +182,13 @@ def rapid_trigger2(data, threshold, continuous=False):
             if a:
                 # Switch is pressed, wait for counts to decrease for unpress. curr_max_min is a MAX
                 curr_max_min = val if val > curr_max_min else curr_max_min
-                if curr_max_min - val > int(0.1*255/4):
+                if curr_max_min - val > 2*SWITCH_HYSTERESIS_COUNTS:
                     a = False
                     curr_max_min = val # curr_max_min becomes a MIN
             else:
                 # Switch is released, wait for counts to increase for unpress. curr_max_min is a MIN
                 curr_max_min = val if val < curr_max_min else curr_max_min
-                if val - curr_max_min > int(0.1*255/4):
+                if val - curr_max_min > 2*SWITCH_HYSTERESIS_COUNTS:
                     a = True
                     curr_max_min = val
 
@@ -210,7 +211,7 @@ rt_active = np.array(rt_active)
 mm = np.array(mm)
 # print(diff)
 
-factor = -1
+factor = -1*4/255
 
 ax = plt.subplot(1,1,1)
 ax.plot(t, factor*travel, 'x-')

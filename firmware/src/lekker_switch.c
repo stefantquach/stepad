@@ -92,7 +92,8 @@ void start_switch_adc()
 void stop_switch_adc()
 {
     adc_run(false);
-    adc_fifo_drain();
+    if(!adc_fifo_is_empty())
+        adc_fifo_drain();
 }
 
 /**
@@ -166,7 +167,7 @@ void process_rapid_trigger(uint8_t travel, int switch_id)
         {
             // Switch is pressed, wait for counts to decrease for unpress. curr_max_min is a MAX
             curr_max_min[switch_id] = travel > curr_max_min[switch_id] ? travel : curr_max_min[switch_id];
-            if ((curr_max_min[switch_id] - travel) > 2*SWITCH_HYSTERESIS_COUNTS) // use 2x the hysteresis threshold since the original one is just one half
+            if ((curr_max_min[switch_id] - travel) > settings.switch_config[switch_id].rapid_trigger_sensitivity)
             {
                 lekker_pressed[switch_id] = false;
                 curr_max_min[switch_id] = travel; // curr_max_min becomes a MIN
@@ -174,11 +175,11 @@ void process_rapid_trigger(uint8_t travel, int switch_id)
         }
         else
         {
-            // Switch is released, wait for counts to increase for unpress. curr_max_min is a MIN
+            // Switch is released, wait for counts to increase for press. curr_max_min is a MIN
             curr_max_min[switch_id] = travel < curr_max_min[switch_id] ? travel : curr_max_min[switch_id];
-            if ((travel - curr_max_min[switch_id]) > 2*SWITCH_HYSTERESIS_COUNTS)
+            if ((travel - curr_max_min[switch_id]) > settings.switch_config[switch_id].rapid_trigger_sensitivity)
             {
-                lekker_pressed[switch_id] = false;
+                lekker_pressed[switch_id] = true;
                 curr_max_min[switch_id] = travel; // curr_max_min becomes a MAX
             }
         }

@@ -98,6 +98,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             uint8_t switch_id  = message_body[0];
             uint8_t new_threshold = message_body[1];
             bool new_trigger = message_body[2];
+            uint8_t trigger_sens = message_body[3];
             if(switch_id >= NUM_LEKKER_SWITCH)
             {
                 // send a NACK
@@ -107,6 +108,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             {
                 // set settings
                 settings.switch_config[switch_id].threshold = new_threshold;
+                settings.switch_config[switch_id].rapid_trigger_sensitivity = trigger_sens;
                 settings.switch_config[switch_id].rapid_trigger_mode = new_trigger;
                 // Send and ACK in return
                 send_ack_nack(MSG_ACK_SUCCESS, NULL, 0);

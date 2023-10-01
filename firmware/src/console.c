@@ -54,6 +54,7 @@ void print_menu()
         "C) Print current calibration settings\n"
         "D) Start Switch distance data logging\n"
         "E) Stop and Print logged data\n"
+        "F) Load default settings\n"
         "\n\n"
     );
 }
@@ -76,7 +77,7 @@ void print_logged_data()
     printf("index");
     for(i=0; i < NUM_LEKKER_SWITCH; ++i)
     {
-        printf(",sw%d travel, switch %d pressed");
+        printf(",sw%d travel,sw%d pressed", i,i);
     }
     printf("\n");
 
