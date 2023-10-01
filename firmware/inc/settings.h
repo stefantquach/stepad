@@ -1,6 +1,8 @@
 #ifndef SETTINGS_H_
 #define SETTINGS_H_
 #include <stdint.h>
+#include <assert.h>
+#include <hardware/flash.h>
 #include "lekker_switch.h"
 #include "parameters.h"
 #include "keymap.h"
@@ -46,8 +48,13 @@ typedef struct settings
     uint32_t crc32;
 } switch_settings_t;
 
+static_assert(sizeof(switch_settings_t) <= FLASH_PAGE_SIZE, "Switch setting struct is larger than 1 page");
+
 void initialize_settings(void);
 void process_settings(void);
+
+void load_default_settings(void);
+
 
 // void update_settings(uint16_t switch_id);
 

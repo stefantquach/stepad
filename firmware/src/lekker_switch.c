@@ -84,6 +84,7 @@ int init_switch_adc()
 
 void start_switch_adc()
 {
+    adc_select_input(0);
     adc_run(true);
 }
 
@@ -132,8 +133,7 @@ void process_standard_trigger(uint8_t travel, int switch_id)
 
 
 /**
- * Rapid-trigger process function. The switch will press and unpress based on the derivative
- * after the initial threshold is passed
+ * Rapid-trigger process function.
 */
 void process_rapid_trigger(uint8_t travel, int switch_id)
 {
@@ -166,7 +166,7 @@ void process_rapid_trigger(uint8_t travel, int switch_id)
         {
             // Switch is pressed, wait for counts to decrease for unpress. curr_max_min is a MAX
             curr_max_min[switch_id] = travel > curr_max_min[switch_id] ? travel : curr_max_min[switch_id];
-            if ((curr_max_min[switch_id] - travel) > 2*SWITCH_HYSTERESIS_COUNTS)
+            if ((curr_max_min[switch_id] - travel) > 2*SWITCH_HYSTERESIS_COUNTS) // use 2x the hysteresis threshold since the original one is just one half
             {
                 lekker_pressed[switch_id] = false;
                 curr_max_min[switch_id] = travel; // curr_max_min becomes a MIN

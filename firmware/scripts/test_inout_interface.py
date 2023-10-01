@@ -15,9 +15,13 @@ for vid in  USB_VID:
         if dev:
             # msg = bytes([0x00, 0x01]) # Get version
             # msg = bytes([0x00, 0x03, 0x03, 0x1]) # get switch settings
-            msg = bytes([0x00, 0x02, 0x06, 0x1, 0x1F, 0]) # set switch settings
+            # msg = bytes([0x00, 0x02, 0x06, 0x0, 0x1F, 0]) # set switch settings
             # msg = bytes([0x00, 0x05, 0x03, 0x3]) # get switch keymap
             # msg = bytes([0x00, 0x04, 0x07, 0x3, 0x00, 0x00, 0x22, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01]) # set switch keymap
+            msg = bytes([0x00, 0x06])
+
+            # Set switch 1 to z
+            # set swtich 2 to x
             
             dev.write(msg)
             print("writing")

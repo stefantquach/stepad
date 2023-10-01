@@ -20,16 +20,19 @@ void send_keyboard_report()
     uint8_t modifier;
     uint16_t keycode;
     int keycode_index = 0;
+    bool key_pressed;
 
     // skip if hid is not ready yet
     if ( !tud_hid_ready() ) return;
 
     // key_press_to_send = false;
     modifier = 0;
+    key_pressed = false;
     for(i = 0; i < TOTAL_NUM_SWITCH; ++i)
     {
         if(switch_pressed[i])
         {
+            key_pressed = true;
             keycode = get_keycode(i);
             if(IS_KC_BASIC(keycode))
             {
@@ -47,14 +50,13 @@ void send_keyboard_report()
         }
     }
 
-    // TODO wake up
-    // // Remote wakeups
-    // if ( tud_suspended() && btn )
-    // {
-    //     // Wake up host if we are in suspend mode
-    //     // and REMOTE_WAKEUP feature is enabled by host
-    //     tud_remote_wakeup();
-    // }
+    // Remote wakeups
+    if ( tud_suspended() && key_pressed )
+    {
+        // Wake up host if we are in suspend mode
+        // and REMOTE_WAKEUP feature is enabled by host
+        tud_remote_wakeup();
+    }
 
     // TODO figure out a way to prevent sending multiple zero keyboard reports
     tud_hid_keyboard_report(REPORT_ID_KEYBOARD, modifier, keycodes);

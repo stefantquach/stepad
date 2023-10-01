@@ -10,12 +10,30 @@
 // Ranges
 enum keycode_ranges
 {
-    KC_BASIC         = 0x0000,
-    KC_BASIC_MAX     = 0x00FF,
-    KC_MODS          = 0x0100,
-    KC_MODS_MAX      = 0x1FFF,
-    KC_LAYER_MOD     = 0x2000,
-    KC_LAYER_MOD_MAX = 0x21FF,
+    KC_BASIC                       = 0x0000,
+    KC_BASIC_MAX                   = 0x00FF,
+    KC_MODS                        = 0x0100,
+    KC_MODS_MAX                    = 0x1FFF,
+    KC_MODS_TAP                    = 0x2000,
+    KC_MODS_TAP_MAX                = 0x3FFF,
+    KC_LAYER_TAP                   = 0x4000,
+    KC_LAYER_TAP_MAX               = 0x4FFF,
+    KC_LAYER_MOD                   = 0x5000,
+    KC_LAYER_MOD_MAX               = 0x51FF,
+    KC_TO                          = 0x5200,
+    KC_TO_MAX                      = 0x521F,
+    KC_MOMENTARY                   = 0x5220,
+    KC_MOMENTARY_MAX               = 0x523F,
+    KC_DEF_LAYER                   = 0x5240,
+    KC_DEF_LAYER_MAX               = 0x525F,
+    KC_TOGGLE_LAYER                = 0x5260,
+    KC_TOGGLE_LAYER_MAX            = 0x527F,
+    KC_ONE_SHOT_LAYER              = 0x5280,
+    KC_ONE_SHOT_LAYER_MAX          = 0x529F,
+    KC_ONE_SHOT_MOD                = 0x52A0,
+    KC_ONE_SHOT_MOD_MAX            = 0x52BF,
+    KC_LAYER_TAP_TOGGLE            = 0x52C0,
+    KC_LAYER_TAP_TOGGLE_MAX        = 0x52DF,
 };
 
 // Actual extra keycods
@@ -247,7 +265,7 @@ enum keycodes
 };
 
 // Macros to define modify layer keys
-#define MAX_KEY_LAYERS 4
+#define MAX_KEY_LAYERS 16
 #define MODIFY_LAYER(layer_num) ((layer_num) << 7)
 
 // Helpers

@@ -283,7 +283,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
       size_t const max_count = sizeof(_desc_str) / sizeof(_desc_str[0]) - 1; // -1 for string type
       if ( chr_count > max_count ) chr_count = max_count;
 
-      printf("%d: %s\n", (uint16_t)index, str);
+      // printf("%d: %s\n", (uint16_t)index, str);
       // Convert ASCII string into UTF-16
       for ( size_t i = 0; i < chr_count; i++ ) {
         _desc_str[1 + i] = str[i];

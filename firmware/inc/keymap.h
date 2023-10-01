@@ -8,5 +8,6 @@ void initialize_keymap();
 
 uint16_t get_keycode(uint16_t switch_id);
 
+extern uint16_t default_keymap[MAX_KEY_LAYERS][TOTAL_NUM_SWITCH];
 
 #endif

@@ -35,6 +35,8 @@ enum message_id
     SET_KEYMAP,
     GET_KEYMAP,
 
+    WRITE_SETTINGS,
+
     NUM_MESSAGE_IDS
 };
 
@@ -177,6 +179,14 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
                 }
                 send_ack_nack(MSG_ACK_SUCCESS, reply_buf, 2 + MAX_KEY_LAYERS*2);
             }
+            break;
+        }
+
+        case WRITE_SETTINGS:
+        {
+            // write settings
+            process_settings();
+            send_ack_nack(MSG_ACK_SUCCESS, NULL, 0);
             break;
         }
             

@@ -48,21 +48,26 @@ void check_for_boot()
  * CPU1 Entry
 */
 void core1_main() {
-    printf("Starting CPU1 loop\n");
+
+    // Need to allow cores to be locked in the case flash needs to be written to
+    multicore_lockout_victim_init();
+
     // initialize LED matrix
     initialize_led_pwms();
 
     start_led_process();
-
-    absolute_time_t start_time = get_absolute_time();
+    
+    // printf("Starting CPU1 loop\n");
+    absolute_time_t start_time_10Hz = get_absolute_time();
     while(1)
     {
         // tight_loop_contents();
+        // 10 Hz loop
         absolute_time_t finish_time = get_absolute_time();
-        uint64_t time_diff_us = absolute_time_diff_us(start_time, finish_time);
+        uint64_t time_diff_us = absolute_time_diff_us(start_time_10Hz, finish_time);
         if(time_diff_us > 100000ULL)
         {
-            start_time = finish_time;
+            start_time_10Hz = finish_time;
             
             hue_travel();
         }
@@ -73,24 +78,28 @@ void core1_main() {
  * CPU0 Entry
 */
 int main() {
-    // blinky();
     stdio_init_all();
 
     // Check for boot mode
     // This check is only performed on start up.
     check_for_boot();
 
-    // Initialize TinyUSB
-    board_init();
-    tusb_init();
+    // Need to allow cores to be locked in the case flash needs to be written to
+    multicore_lockout_victim_init();
+
+    // Need to initialize this before CPU2 starts since this reads from flash
+    initialize_settings();
 
     // Initialize CPU2
     multicore_launch_core1(core1_main);
 
+    // Initialize TinyUSB
+    board_init();
+    tusb_init();
+    
     // Initialize processes
     init_switch_adc();
     init_digital_switches();
-    initialize_settings();
     console_initialize();
 
     // Start ADCs

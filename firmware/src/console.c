@@ -135,6 +135,12 @@ void process_menu_inputs(int c)
             print_logged_data();
             data_log_index = 0;
             break;
+
+        case 'F':
+        case 'f':
+            printf("Loading default settings");
+            load_default_settings();
+            break;
         default:
             print_menu();
             break;
@@ -220,7 +226,8 @@ void calibration_process(int c)
             printf("Finished Calibration procedure\n");
             // Copy values into local settings
             memcpy(&settings.cal[0], &calibrated_values[0], sizeof(calibrated_values));
-            // TODO remove this print. Its just test for now.
+            process_settings();
+
             for(i=0; i<NUM_LEKKER_SWITCH; ++i)
             {
                 printf("Switch %d: Top: %d\tBottom:%d\n", i, settings.cal[i].top_count, settings.cal[i].bottom_count);
