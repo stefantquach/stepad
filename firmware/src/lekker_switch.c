@@ -28,8 +28,6 @@ static uint32_t sample_sum[NUM_LEKKER_SWITCH];
 // pointer to the global address of bool array for switch status. Digital switches first, then Lekker switches
 static bool *lekker_pressed = &switch_pressed[NUM_DIGITAL_SWITCH]; 
 
-const uint8_t MINIMUM_THRESHOLD = (uint8_t) (0.1 *255.0/4.0);
-
 void adc_irq_handler();
 
 /**

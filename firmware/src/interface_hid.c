@@ -5,6 +5,7 @@
 #include "parameters.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "version.h"
 
 /**
  * This is a custom messaging interface in order for the host PC to set
@@ -45,6 +46,7 @@ enum message_error_code
     MSG_ACK_SUCCESS,
     MSG_NACK_INVALID_SIZE,
     MSG_NACK_INVALID_SWITCH_ID,
+    MSG_NACK_INVALID_THRESH
 };
 
 // Header struct of the message
@@ -83,9 +85,9 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
         case GET_VERSION:
         {
             // this message has no payload. Just reply with the version number
-            reply_buf[0] = 1; // TODO fill in BUILD version
-            reply_buf[1] = 0; // TODO fill in MINOR version
-            reply_buf[2] = 1; // TODO fill in MAJOR version
+            reply_buf[0] = VERSION_BUILD; // fill in BUILD version
+            reply_buf[1] = VERSION_MINOR; // fill in MINOR version
+            reply_buf[2] = VERSION_MAJOR; // fill in MAJOR version
             send_ack_nack(MSG_ACK_SUCCESS, reply_buf, 3);
             break;
         }
@@ -107,7 +109,15 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             else
             {
                 // set settings
-                settings.switch_config[switch_id].threshold = new_threshold;
+                if(new_threshold >= MINIMUM_THRESHOLD)
+                {
+                    settings.switch_config[switch_id].threshold = new_threshold;
+                }
+                else
+                {
+                    send_ack_nack(MSG_NACK_INVALID_THRESH, NULL, 0);
+                    break;
+                }
                 settings.switch_config[switch_id].rapid_trigger_sensitivity = trigger_sens;
                 settings.switch_config[switch_id].rapid_trigger_mode = new_trigger;
                 // Send and ACK in return

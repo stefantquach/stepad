@@ -14,4 +14,8 @@
 // Switch debounce counts in 1kHz ticks
 #define DIGITAL_SWICH_DEBOUNCE_COUNT 5
 
+// Minimum threshold to be set for Lekker switches
+#define MINIMUM_THRESHOLD 6
+
+
 #endif
