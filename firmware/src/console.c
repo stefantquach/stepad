@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "parameters.h"
 
+bool debug_console_enable = false;
 
 #define MAX_NUM_DATA_LOG_ENTRIES 10000 // Maximum number of log entries. 10 Secs at 1kHz
 

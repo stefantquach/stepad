@@ -37,6 +37,7 @@ add_compile_options(-Wall
         )
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-Wno-maybe-uninitialized)
+    add_compile_options(-O2)
 endif()
 
 include_directories(inc)
@@ -59,6 +60,9 @@ add_executable(stepad_firmware
 
 # Enable stdio prints over UART
 pico_enable_stdio_uart(stepad_firmware 1)
+
+# Enable stdio prints over USB
+pico_enable_stdio_usb(stepad_firmware 1)
 
 # Enable outputs of bin, hex and map files 
 pico_add_extra_outputs(stepad_firmware)

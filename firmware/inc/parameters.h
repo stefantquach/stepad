@@ -17,5 +17,7 @@
 // Minimum threshold to be set for Lekker switches
 #define MINIMUM_THRESHOLD 6
 
+// Enable UART based console. If undefined, then defaults to USB debug console
+#define UART_DEBUG_CONSOLE
 
 #endif

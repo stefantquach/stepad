@@ -27,6 +27,7 @@
 #include "tusb.h"
 #include "usb_descriptors.h"
 #include "parameters.h"
+#include "console.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
  * Same VID/PID with different interface e.g MSC (first), then CDC (later) will possibly cause system error on PC.
@@ -113,9 +114,12 @@ uint8_t const * tud_hid_descriptor_report_cb(uint8_t itf)
 
 #define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
 
-#define EPNUM_HID    0x01
-#define EPNUM_HID_LR 0x02
+#define EPNUM_HID     0x01
+#define EPNUM_HID_LR  0x02
+#define EPNUM_CDC_CMD 0x03
+#define EPNUM_CDC     0x04
 
+// Normal configuration descriptor
 uint8_t const desc_configuration[] =
 {
   // Config number, interface count, string index, total length, attribute, power in mA
@@ -123,56 +127,22 @@ uint8_t const desc_configuration[] =
 
   // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
   TUD_HID_DESCRIPTOR(ITF_NUM_HID, 4, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), 0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1000/USB_POLLING_RATE_HZ),
-  TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID_LR, 5, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report_lr), EPNUM_HID_LR, 0x80 | EPNUM_HID_LR, CFG_TUD_HID_EP_BUFSIZE, 5)
+  TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID_LR, 5, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report_lr), EPNUM_HID_LR, 0x80 | EPNUM_HID_LR, CFG_TUD_HID_EP_BUFSIZE, 5),
 };
 
-#if TUD_OPT_HIGH_SPEED
-// Per USB specs: high speed capable device must report device_qualifier and other_speed_configuration
-
-// other speed configuration
-uint8_t desc_other_speed_config[CONFIG_TOTAL_LEN];
-
-// device qualifier is mostly similar to device descriptor since we don't change configuration based on speed
-tusb_desc_device_qualifier_t const desc_device_qualifier =
+// Configuration descriptor for USB debug console (adds CDC interface)
+uint8_t const desc_configuration_debug[] =
 {
-  .bLength            = sizeof(tusb_desc_device_qualifier_t),
-  .bDescriptorType    = TUSB_DESC_DEVICE_QUALIFIER,
-  .bcdUSB             = USB_BCD,
+  // Config number, interface count, string index, total length, attribute, power in mA
+  TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL+2, 0, CONFIG_TOTAL_LEN + TUD_CDC_DESC_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
 
-  .bDeviceClass       = 0x00,
-  .bDeviceSubClass    = 0x00,
-  .bDeviceProtocol    = 0x00,
+  // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
+  TUD_HID_DESCRIPTOR(ITF_NUM_HID, 4, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), 0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1000/USB_POLLING_RATE_HZ),
+  TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID_LR, 5, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report_lr), EPNUM_HID_LR, 0x80 | EPNUM_HID_LR, CFG_TUD_HID_EP_BUFSIZE, 5),
 
-  .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
-  .bNumConfigurations = 0x01,
-  .bReserved          = 0x00
+  // CDC Debug interface
+  TUD_CDC_DESCRIPTOR(2, 6, EPNUM_CDC_CMD, 8, EPNUM_CDC, 0x80 | EPNUM_CDC, CFG_TUD_CDC_EP_BUFSIZE),
 };
-
-// Invoked when received GET DEVICE QUALIFIER DESCRIPTOR request
-// Application return pointer to descriptor, whose contents must exist long enough for transfer to complete.
-// device_qualifier descriptor describes information about a high-speed capable device that would
-// change if the device were operating at the other speed. If not highspeed capable stall this request.
-uint8_t const* tud_descriptor_device_qualifier_cb(void)
-{
-  return (uint8_t const*) &desc_device_qualifier;
-}
-
-// Invoked when received GET OTHER SEED CONFIGURATION DESCRIPTOR request
-// Application return pointer to descriptor, whose contents must exist long enough for transfer to complete
-// Configuration descriptor in the other speed e.g if high speed then this is for full speed and vice versa
-uint8_t const* tud_descriptor_other_speed_configuration_cb(uint8_t index)
-{
-  (void) index; // for multiple configurations
-
-  // other speed config is basically configuration with type = OHER_SPEED_CONFIG
-  memcpy(desc_other_speed_config, desc_configuration, CONFIG_TOTAL_LEN);
-  desc_other_speed_config[1] = TUSB_DESC_OTHER_SPEED_CONFIG;
-
-  // this example use the same configuration for both high and full speed mode
-  return desc_other_speed_config;
-}
-
-#endif // highspeed
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor
@@ -181,8 +151,11 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 {
   (void) index; // for multiple configurations
 
-  // This example use the same configuration for both high and full speed mode
-  return desc_configuration;
+  // Pick configuration based on if debug mode has been enabled.
+  if(debug_console_enable)
+    return desc_configuration_debug;
+  else
+    return desc_configuration;
 }
 
 //--------------------------------------------------------------------+
@@ -201,6 +174,7 @@ char const* string_desc_arr [] =
   serial,                        // 3: Serials, uses the flash ID
   "Keyboard Interface",          // 4: Interface 1 String
   "Keyboard 2 Interface",        // 5: Interface 2 String
+  "Debug CMD",                   // 6: Interface 3 String
 };
 
 static uint16_t _desc_str[32 + 1];

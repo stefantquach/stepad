@@ -23,6 +23,13 @@
 */
 
 // Defines
+#define FLASH_DEBUG_OUTPUT
+#ifdef FLASH_DEBUG_OUTPUT
+#define DEBUG_FLASH_PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+#define DEBUG_FLASH_PRINT(fmt, ...)
+#endif
+
 #define CRC32_INIT                  ((uint32_t)-1l)
 #define FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 
@@ -56,11 +63,11 @@ void initialize_settings(void)
     if(read_settings_from_flash() == false)
     // if(true)
     {
-        printf("Settings not found in flash, revert to default\n");
+        DEBUG_FLASH_PRINT("Settings not found in flash, revert to default\n");
         // If there are no values in flash, use defaults
         load_default_settings();
     }
-    printf("Finished initializing settings\n");
+    DEBUG_FLASH_PRINT("Finished initializing settings\n");
 }
 
 
@@ -73,7 +80,7 @@ void process_settings(void)
     switch_settings_t settings_copy;
     uint32_t sniffed_crc = copy_and_compute_crc32(&settings, &settings_copy, sizeof(switch_settings_t) - 4);
 
-    printf("processing settings\n");
+    DEBUG_FLASH_PRINT("processing settings\n");
     if (settings.crc32 != sniffed_crc)
     {
         settings_copy.crc32 = sniffed_crc;
@@ -90,7 +97,7 @@ void process_settings(void)
 void load_default_settings(void)
 {
     int i;
-    printf("Loading default settings\n");
+    DEBUG_FLASH_PRINT("Loading default settings\n");
     memcpy(settings.keymap, default_keymap, sizeof(default_keymap));
     memcpy(&settings.cal[0], &default_calibration[0], sizeof(default_calibration));
     for(i=0; i<NUM_LEKKER_SWITCH; ++i)
@@ -109,7 +116,7 @@ void load_default_settings(void)
 */
 void write_settings_to_flash(switch_settings_t* settings_)
 {
-    printf("Writing settings to flash\n");
+    DEBUG_FLASH_PRINT("Writing settings to flash\n");
     int page;
     // Stop ADCs to prevent desync in samples
     stop_switch_adc();
@@ -118,7 +125,7 @@ void write_settings_to_flash(switch_settings_t* settings_)
     // Halt execution on the other CPU
     if(multicore_lockout_victim_is_initialized(!*((uint32_t*)SIO_BASE)))
     {
-        printf("CPU%d is initialized, locking", *((uint32_t*)SIO_BASE));
+        DEBUG_FLASH_PRINT("CPU%d is initialized, locking", *((uint32_t*)SIO_BASE));
         multicore_lockout_start_blocking();
     }
     // Find the first empty page of Flash to write to. If no empty pages, erase sector.
@@ -137,13 +144,13 @@ void write_settings_to_flash(switch_settings_t* settings_)
 
     if (!found_addr)
     {
-        printf("Erasing flash sector\n");
+        DEBUG_FLASH_PRINT("Erasing flash sector\n");
         // No page available, erase the whole sector
         flash_range_erase(FLASH_OFFSET, FLASH_SECTOR_SIZE);
         page = 0; // set page to zero
     }
     // else we already know what page to write to
-    printf("Writing to page %d\n", page);
+    DEBUG_FLASH_PRINT("Writing to page %d\n", page);
 
     // write settings to a given page
     flash_range_program(FLASH_OFFSET + (page * FLASH_PAGE_SIZE), (uint8_t*)settings_, FLASH_PAGE_SIZE);
@@ -169,7 +176,7 @@ bool read_settings_from_flash()
     int page;
     int* addr;
     int* addr_next;
-    printf("Reading settings from flash\n");
+    DEBUG_FLASH_PRINT("Reading settings from flash\n");
 
     // Read in the whole sector of flash where the settings struct is located
     uint8_t buf[FLASH_SECTOR_SIZE];
@@ -177,7 +184,7 @@ bool read_settings_from_flash()
     flash_bulk_read((uint32_t*)&buf, FLASH_OFFSET, FLASH_SECTOR_SIZE/4, chan);
     dma_channel_unclaim(chan);
 
-    printf("Finished reading flash\n");
+    DEBUG_FLASH_PRINT("Finished reading flash\n");
 
     // Find the page of flash where the settings struct is
     bool found_page = false;
@@ -201,7 +208,7 @@ bool read_settings_from_flash()
     // If we found some data in flash
     if(found_page)
     {
-        printf("Found settings page at page %d\n", page);
+        DEBUG_FLASH_PRINT("Found settings page at page %d\n", page);
         // Copy into settings global variable to check CRC
         uint32_t crc = copy_and_compute_crc32(&buf[page*FLASH_PAGE_SIZE], &settings, sizeof(switch_settings_t) - 4); // exclude the crc
         switch_settings_t* temp_settings = (switch_settings_t*)&buf[page*FLASH_PAGE_SIZE];
@@ -213,13 +220,13 @@ bool read_settings_from_flash()
         else
         {
             // zero out the settings if crc doesnt pass
-            printf("Failed CRC check\n");
+            DEBUG_FLASH_PRINT("Failed CRC check\n");
             memset(&settings, 0, sizeof(switch_settings_t));
             return false;
         }
     }
 
-    printf("No settings found in flash\n");
+    DEBUG_FLASH_PRINT("No settings found in flash\n");
     return false;
 }
 

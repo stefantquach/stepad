@@ -31,8 +31,11 @@ void check_for_boot()
     gpio_init(STEPAD_K_ROW);
     gpio_set_dir(STEPAD_K_ROW, GPIO_OUT);
     gpio_init(STEPAD_K_COL0);
+    gpio_init(STEPAD_K_COL1);
     gpio_set_dir(STEPAD_K_COL0, GPIO_IN);
     gpio_pull_down(STEPAD_K_COL0); // Enable pulldown resistor.
+    gpio_set_dir(STEPAD_K_COL1, GPIO_IN);
+    gpio_pull_down(STEPAD_K_COL1); // Enable pulldown resistor.
 
     // Check if Switch is pressed (COL0 is high). If so enter bootloader
     gpio_put(STEPAD_K_ROW, 1);
@@ -40,7 +43,13 @@ void check_for_boot()
         ; // wait a bit for the pin level to rise
     if(gpio_get(STEPAD_K_COL0))
     {
+        // If one button is pressed on startup, enter bootloader mode
         reset_usb_boot(0, 0);
+    }
+    if(gpio_get(STEPAD_K_COL1))
+    {
+        // If the other button is pressed, enable debug console
+        debug_console_enable = true;
     }
 }
 
@@ -78,7 +87,7 @@ void core1_main() {
  * CPU0 Entry
 */
 int main() {
-    stdio_init_all();
+    stdio_uart_init();
 
     // Check for boot mode
     // This check is only performed on start up.
@@ -96,6 +105,11 @@ int main() {
     // Initialize TinyUSB
     board_init();
     tusb_init();
+
+    if(debug_console_enable)
+    {
+        stdio_usb_init();
+    }
     
     // Initialize processes
     init_switch_adc();
