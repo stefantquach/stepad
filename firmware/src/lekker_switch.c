@@ -240,7 +240,8 @@ void adc_irq_handler()
     check_digital_switch_status();
 
     // send USB report
-    send_keyboard_report();
+    if(!calibration_in_progress)
+        send_keyboard_report();
 
     // write the data in
     write_data_log(&data_log);

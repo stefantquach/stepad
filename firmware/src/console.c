@@ -7,6 +7,7 @@
 #include "parameters.h"
 
 bool debug_console_enable = false;
+bool calibration_in_progress = false;
 
 #define MAX_NUM_DATA_LOG_ENTRIES 10000 // Maximum number of log entries. 10 Secs at 1kHz
 
@@ -111,6 +112,7 @@ void process_menu_inputs(int c)
         // Start Switch calibration
         case 'B':
         case 'b':
+            calibration_in_progress = true;
             calibration_index = 0;
             calibration_state = CALIBRATION_STATE_START;
             state = CONSOLE_STATE_CALIBRATION;
@@ -237,12 +239,14 @@ void calibration_process(int c)
             calibration_state = CALIBRATION_STATE_START;
             calibration_index = 0;
             state = CONSOLE_STATE_DRAW_MENU;
+            calibration_in_progress = false;
             break;
         
         default:
             calibration_state = CALIBRATION_STATE_START;
             calibration_index = 0;
             state = CONSOLE_STATE_DRAW_MENU;
+            calibration_in_progress = false;
             break;
     }
 }

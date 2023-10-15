@@ -141,8 +141,9 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
                 reply_buf[0] = switch_id;
                 reply_buf[1] = settings.switch_config[switch_id].threshold;
                 reply_buf[2] = settings.switch_config[switch_id].rapid_trigger_mode;
+                reply_buf[3] = settings.switch_config[switch_id].rapid_trigger_sensitivity;
                 // Send ACK
-                send_ack_nack(MSG_ACK_SUCCESS, reply_buf, 3);
+                send_ack_nack(MSG_ACK_SUCCESS, reply_buf, 4);
             }
             break;
         }

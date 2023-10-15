@@ -1,20 +1,49 @@
 import hid
 
-def write_msg_to_inout(dev, msg):
-    dev.write(msg)
+def write_msg_to_inout(dev, message_id, size, payload : bytes):
+    header = bytes([0x00, message_id, size])
+    dev.write(header + payload)
+    print(header+payload)
     print("writing")
     str_in = dev.read(64)
     print("Received from HID Device:", str_in, '\n')
-    # print("report_id: %x" % (str_in[0]))
     print("message_id: %d" % (str_in[0]))
     print("message_size: %d" % (str_in[1]))
     print("ACKNACK: %d" % (str_in[2]))
     print("message_body: ",  str_in[3:])
+    message_id = str_in[0]
+    message_size = str_in[1]
+    ACK_NACK = str_in[2]
+    payload = str_in[3:]
+
+    return (message_id, message_size, ACK_NACK, payload)
+
 
 
 def write_switch_settings(dev, lekker_switch_id : int, threshold : int, rapid_trigger_mode : int, rapid_trigger_sens : int):
-    msg = bytes([0x00, 0x02, 0x07, lekker_switch_id, threshold, rapid_trigger_mode, rapid_trigger_sens])
-    write_msg_to_inout(dev, msg)    
+    msg = bytes([lekker_switch_id, threshold, rapid_trigger_mode, rapid_trigger_sens])
+    _, _, ACK, _ = write_msg_to_inout(dev, 0x02, 0x07, msg)
+    return ACK == 0
+
+
+
+def read_switch_settings(dev, lekker_switch_id : int):
+    msg = bytes([lekker_switch_id])
+    _, _, ACK, response = write_msg_to_inout(dev, 0x03, 0x03, msg)
+    if ACK != 0:
+        return None
+    
+    print("reading switch settings")
+    print("Switch ID: %d" % (int(response[0])))
+    print("Switch threshold: %d" % (int(response[1])))
+    print("Rapid trigger mode: %d" % (int(response[2])))
+    print("Rapid trigger sensitivity: %d" % (int(response[3])))
+
+
+def write_settings_to_flash(dev):
+    write_msg_to_inout(dev, 0x06)
+
+    
 
 
 # default is TinyUSB (0xcafe), Adafruit (0x239a), RaspberryPi (0x2e8a), Espressif (0x303a) VID
@@ -31,5 +60,8 @@ for vid in  USB_VID:
         dev.open(dict['vendor_id'], dict['product_id'])
 
         if (dev):
-            write_switch_settings(dev, 0, 50, 2, 20)
-            write_switch_settings(dev, 1, 50, 2, 20)
+            write_switch_settings(dev, 0, 50, 2, 30)
+            write_switch_settings(dev, 1, 50, 2, 30)
+
+            read_switch_settings(dev, 0)
+            read_switch_settings(dev, 1)
