@@ -41,7 +41,9 @@ def read_switch_settings(dev, lekker_switch_id : int):
 
 
 def write_settings_to_flash(dev):
-    write_msg_to_inout(dev, 0x06)
+    dummy = bytes([0])
+    _, _, ACK, _ = write_msg_to_inout(dev, 0x06, 0, dummy )
+    return ACK == 0
 
     
 
@@ -54,14 +56,15 @@ print("VID list: " + ", ".join('%02x' % v for v in USB_VID))
 for vid in  USB_VID:
     for dict in hid.enumerate(vid):
         print(dict)
-        if(dict["interface_number"] == 0):
-            continue
-        dev = hid.device(dict['vendor_id'], dict['product_id'])
-        dev.open(dict['vendor_id'], dict['product_id'])
+        if(dict["interface_number"] == 1):
+            dev = hid.device(dict['vendor_id'], dict['product_id'])
+            dev.open(dict['vendor_id'], dict['product_id'])
 
-        if (dev):
-            write_switch_settings(dev, 0, 50, 2, 30)
-            write_switch_settings(dev, 1, 50, 2, 30)
+            if (dev):
+                # write_switch_settings(dev, 0, 50, 2, 30)
+                # write_switch_settings(dev, 1, 50, 2, 30)
 
-            read_switch_settings(dev, 0)
-            read_switch_settings(dev, 1)
+                read_switch_settings(dev, 0)
+                read_switch_settings(dev, 1)
+
+                # write_settings_to_flash(dev)
