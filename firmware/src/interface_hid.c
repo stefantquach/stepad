@@ -73,6 +73,7 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
         send_ack_nack(MSG_NACK_INVALID_SIZE, NULL, 0);
         return;
     }
+    const int data_len_bytes = message_header->message_size - sizeof(message_struct_t);
 
     uint8_t reply_buf[MSG_MAX_SIZE] = {0};
     switch(message_header->message_id)
@@ -162,7 +163,9 @@ void parse_message(const uint8_t* buf, uint16_t bufsize)
             else
             {
                 uint16_t* u16_message_buf = (uint16_t*)&message_body[2];
-                for(int i=0; i < MAX_KEY_LAYERS; ++i)
+                int len = (data_len_bytes - 2) / sizeof(uint16_t);
+                len = len > MAX_KEY_LAYERS ? MAX_KEY_LAYERS : len;
+                for(int i=0; i < len; ++i)
                 {
                     settings.keymap[i][switch_id] = u16_message_buf[i];
                 }

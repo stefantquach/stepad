@@ -1,4 +1,5 @@
 import hid
+import struct
 
 def write_msg_to_inout(dev, message_id, size, payload : bytes):
     header = bytes([0x00, message_id, size])
@@ -40,9 +41,29 @@ def read_switch_settings(dev, lekker_switch_id : int):
     print("Rapid trigger sensitivity: %d" % (int(response[3])))
 
 
+def set_keymap(dev, switch_id, keymap):
+    encoded = struct.pack("<{}H".format(len(keymap)), *keymap)
+    msg = bytes([switch_id, 0x00]) + encoded
+    _, _, ACK, response = write_msg_to_inout(dev, 0x04, 0x03 + 1 + 2*len(keymap), msg)
+    if ACK != 0:
+        print("NACK")
+        return None
+
+
+def read_keymap(dev, switch_id):
+    msg = bytes([switch_id])
+    _, _, ACK, response = write_msg_to_inout(dev, 0x05, 0x03, msg)
+    if ACK != 0:
+        return None
+    
+    print("reading switch settings")
+    print("Switch ID: %d" % (int(response[0])))
+    print("Keycodes:" + str(response[1:]))
+
+
 def write_settings_to_flash(dev):
     dummy = bytes([0])
-    _, _, ACK, _ = write_msg_to_inout(dev, 0x06, 0, dummy )
+    _, _, ACK, _ = write_msg_to_inout(dev, 0x06, 0x02, dummy )
     return ACK == 0
 
     
@@ -61,10 +82,16 @@ for vid in  USB_VID:
             dev.open(dict['vendor_id'], dict['product_id'])
 
             if (dev):
-                # write_switch_settings(dev, 0, 50, 2, 30)
-                # write_switch_settings(dev, 1, 50, 2, 30)
+                # write_switch_settings(dev, 0, 51, 2, 30)
+                # write_switch_settings(dev, 1, 51, 2, 30)
 
-                read_switch_settings(dev, 0)
-                read_switch_settings(dev, 1)
+                # read_switch_settings(dev, 0)
+                # read_switch_settings(dev, 1)
 
-                # write_settings_to_flash(dev)
+                # set_keymap(dev, 2, [0x1D, 0x02, 0x04, 0x03])
+                # set_keymap(dev, 3, [0x1B, 0x01, 0x01, 0x01])
+
+                read_keymap(dev, 2)
+                # read_keymap(dev, 3)
+
+                write_settings_to_flash(dev)
